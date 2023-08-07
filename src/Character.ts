@@ -5,14 +5,14 @@ import Race, { Elf } from './Races';
 import getRandomInt from './utils';
 
 export default class Character implements Fighter {
+  readonly _race: Race;
+  readonly _archetype: Archetype;
   private _dexterity: number;
-  private _race: Race;
-  private _archetype: Archetype;
   private _maxLifePoints: number;
   private _lifePoints: number;
   private _defense: number;
   private _strength: number;
-  private _energy: Energy;
+  readonly _energy: Energy;
 
   constructor(private _nameCharacter: string) {
     this._dexterity = getRandomInt(1, 10);
@@ -28,33 +28,14 @@ export default class Character implements Fighter {
     };
   }
 
-  get race(): Race {
-    return this._race;
-  }
-
-  get archetype(): Archetype {
-    return this._archetype;
-  }
-
-  get lifePoints(): number {
-    return this._lifePoints;
-  }
-
-  get strength(): number {
-    return this._strength;
-  }
-
-  get dexterity(): number {
-    return this._dexterity;
-  }
-
-  get defense(): number {
-    return this._defense;
-  }
-
-  get energy(): Energy {
-    return { ...this._energy };
-  }
+  get race(): Race { return this._race; }
+  get archetype(): Archetype { return this._archetype; }
+  get maxLifePoints(): number { return this._maxLifePoints; }
+  get lifePoints(): number { return this._lifePoints; }
+  get strength(): number { return this._strength; }
+  get dexterity(): number { return this._dexterity; }
+  get defense(): number { return this._defense; }
+  get energy(): Energy { return { ...this._energy }; }
 
   receiveDamage(attackPoints: number): number {
     const damage = attackPoints - this._defense > 0
@@ -68,18 +49,23 @@ export default class Character implements Fighter {
   }
 
   levelUp(): void {
-    this._maxLifePoints = Math.min(this
-      ._maxLifePoints + getRandomInt(1, 10), this._race.maxLifePoints);
-    this._lifePoints = this._maxLifePoints;
     this._strength += getRandomInt(1, 10);
     this._dexterity += getRandomInt(1, 10);
     this._defense += getRandomInt(1, 10);
     this._energy.amount = 10;
+    this._maxLifePoints += getRandomInt(1, 10);
+    this._lifePoints += getRandomInt(1, 10);
+    if (this._maxLifePoints > this._race.maxLifePoints) {
+      this._maxLifePoints = this._race.maxLifePoints;
+    }
+    if (this._lifePoints > this._race.maxLifePoints) {
+      this._lifePoints = this._race.maxLifePoints;
+    }
   }
 
-  special(): void {
+  special(enemy: Fighter | SimpleFighter): void {
     console.log(`${this._nameCharacter} is performing a special attack!`);
-  
+    enemy.receiveDamage(this.strength + 10);
     if (this._archetype instanceof Mage) {
       console.log('A powerful spell is cast!');
     } else {
