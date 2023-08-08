@@ -3,6 +3,7 @@ import Battle from './Battle';
 
 export default class PVE extends Battle {
   private _adversary: (Fighter | SimpleFighter)[];
+  private _player: Fighter;
 
   constructor(
     player: Fighter,
@@ -10,21 +11,15 @@ export default class PVE extends Battle {
   ) {
     super(player);
     this._adversary = adversary;
+    this._player = player;
   }
 
   fight(): number {
-    this._adversary.forEach((adversary) => {
-      this.player.attack(adversary);
-      if (adversary.lifePoints <= 0) {
-        this._adversary = this._adversary.filter((a) => a !== adversary);
-      }
+    this._adversary.map((enemy) => {
+      const enemyLife = enemy.receiveDamage(this._player.strength);
+      const playerLife = this._player.receiveDamage(enemy.strength);
+      return playerLife < enemyLife ? -1 : 1;
     });
-
-    if (this._adversary.length === 0) {
-      return 1;
-    }
-
-    this.player.attack(this.player);
-    return this.player.lifePoints <= 0 ? -1 : this.fight();
+    return super.fight();
   }
 }

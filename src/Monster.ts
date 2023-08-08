@@ -17,15 +17,18 @@ export default class Monster implements SimpleFighter {
     return this._strength;
   }
 
-  setLifePoints(newLife: number): void {
-    this._lifePoints = newLife;
+  set updatingLife(totalLife: number) {
+    this._lifePoints = totalLife;
   }
 
   receiveDamage(attackPoints: number): number {
     const damage = attackPoints;
     const totalLife = this._lifePoints - damage;
-    this._lifePoints = totalLife > -1 ? totalLife : -1;
-    return this._lifePoints;
+    if (totalLife > -1) {
+      this.updatingLife = totalLife;
+    }
+    this.updatingLife = -1;
+    return -1;
   }
 
   attack(enemy: SimpleFighter): void {

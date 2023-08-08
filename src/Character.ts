@@ -18,7 +18,7 @@ export default class Character implements Fighter {
     this._dexterity = getRandomInt(1, 10);
     this._race = new Elf(_nameCharacter, this._dexterity);
     this._archetype = new Mage(_nameCharacter);
-    this._maxLifePoints = this._race.maxLifePoints;
+    this._maxLifePoints = this._race.maxLifePoints / 2;
     this._lifePoints = this._maxLifePoints;
     this._strength = getRandomInt(1, 10);
     this._defense = getRandomInt(1, 10);
@@ -37,14 +37,22 @@ export default class Character implements Fighter {
   get defense(): number { return this._defense; }
   get energy(): Energy { return { ...this._energy }; }
 
+  set updatingLife(totalLife: number) {
+    this._lifePoints = totalLife;
+  }
+
   receiveDamage(attackPoints: number): number {
     const damage = attackPoints - this._defense > 0
       ? attackPoints - this._defense : 1;
     const totalLife = this._lifePoints - damage;
-    
-    return totalLife > 0 ? totalLife : -1;
+    if (totalLife > 0) {
+      this.updatingLife = totalLife;
+      return totalLife;
+    }
+    this.updatingLife = -1;
+    return -1;
   }
-
+  
   attack(enemy: Fighter | SimpleFighter): void {
     enemy.receiveDamage(this._strength);
   }
